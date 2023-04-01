@@ -1,0 +1,54 @@
+{
+  "conditions": [
+    {
+      "name": "example_entry_will_be_ignored",
+      "pattern": {
+        "sender": "@domain",
+        "subject": ["Pattern01", "Pattern02"],
+        "body": ["Pattern01", "Pattern02"],
+        "attachments": [
+          {
+            "filename": ["filenamepattern", ".csv"]
+          }
+        ]
+      },
+      "delivery": {
+        "target": "local",
+        "path": "/path/to/save/files"
+      }
+    },
+    {
+      "name": "vudu_format_01",
+      "pattern": {
+        "subject": ["Daily Sales File"],
+        "body": ["Daily Sales File", "Vudu"],
+        "attachments": [
+          {
+            "filename": [".csv"]
+          }
+        ]
+      },
+      "delivery": {
+        "target": "local",
+        "path": "C:/Users/Phobia/Desktop"
+      }
+    },
+    {
+      "name": "comcast_format_01",
+      "pattern": {
+        "sender": "@comcast",
+        "subject": ["Daily Sales File"],
+        "body": ["Daily Sales File", "Comcast"],
+        "attachments": [
+          {
+            "filename": [".csv"]
+          }
+        ]
+      },
+      "delivery": {
+        "target": "local",
+        "path": "C:/Users/Phobia/Desktop"
+      }
+    }
+  ]
+}

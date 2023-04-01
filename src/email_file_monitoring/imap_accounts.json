@@ -1,0 +1,11 @@
+{
+    "imap_accounts": [
+        {
+            "account_name": "XYZ_Department_Sales_Files",
+            "imap_username": "user1",
+            "imap_server": "imap.example.com",
+            "imap_port": 993,
+            "imap_password_key": "password_key"
+        }
+    ]
+}
