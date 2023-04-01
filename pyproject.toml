@@ -8,6 +8,8 @@ packages = [{include = "email_file_monitoring", from = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.8"
+keyring = "^23.13.1"
+configparser = "^5.3.0"
 
 
 [build-system]

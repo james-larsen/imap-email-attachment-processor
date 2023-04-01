@@ -7,6 +7,9 @@ import fnmatch
 from pathlib import Path
 import keyring
 import configparser
+# pylint: disable=import-error
+from utils.password import get_password as pw
+# pylint: enable=import-error
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(current_dir)
@@ -26,9 +29,8 @@ else:
 
 #%%
 for account in imap_accounts['imap_accounts']:
-    account_name = account['account_name']
-    if account['account_name'] == 'Sample Account Name - Will Be Ignored':
-        continue
+    # if account['account_name'] == 'Sample Account Name - Will Be Ignored':
+    #     continue
 
     # account_name = config.get('IMAP', 'account_name') 
     # imap_server = config.get('IMAP', 'imap_server')
@@ -42,7 +44,8 @@ for account in imap_accounts['imap_accounts']:
     imap_server = account['imap_server']
     imap_port = account['imap_port']
     imap_password_key = account['imap_password_key']
-    imap_password = keyring.get_password(account_name, imap_password_key)
+    #imap_password = keyring.get_password(account_name, imap_password_key)
+    imap_password = pw(account_name, imap_password_key)
     json_filename = f'{account_name}_email_rules.json'
 
     if os.path.exists(json_filename):
