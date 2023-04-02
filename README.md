@@ -82,16 +82,23 @@ Holds the specific patterns to look for and where to deliver the files when they
         "body": ["Pattern01", "Pattern02"],
         "attachments": [
           {
-            "filename": ["filenamepattern", ".csv"]
+            "filename": [".csv"]
           }
         ]
       },
       "delivery": {
         "target": "local",
         "path": "/path/to/save/files"
+      },
+      "delivery": {
+        "target": "s3", 
+        "region": "us-west-1",
+        "bucket": "my-bucket-name", 
+        "subfolder": "sub-folder1/sub-folder2/"
       }
     }
 ```
+***Note: Multiple "delivery" keys shown for demonstration, but only one should be used per condition entry***
 
 * ***name***:  Name for the condition being defined
 * ***pattern***
@@ -100,15 +107,19 @@ Holds the specific patterns to look for and where to deliver the files when they
     * ***body***:  List of strings to check against the "Body" field
     * ***filename***:  List of strings to check against the "Filename" field of each attachment
 * ***delivery***
-    * ***target***:  Delivery target type.  Currently must be 'local', will eventually allow other targets
+    * ***target***:  Delivery target type
     * ***path***:  Local file path to deliver attachments
+    * ***region***:  S3 bucket region
+    * ***bucket***:  S3 bucket name
+    * ***subfolder***:  Subfolder(s) to deliver within bucket (optional)
 
 A few notes:
 
 * The first entry "example_entry_will_be_ignored" will be ignored by the program.  Leaving this here may make it easier to refer to the proper syntax and which patterns are available
 * For items defined as lists above, leave them in [], even if only a single pattern is desired
+* Every condition must have a "filename" section, as well as at least one of "sender", "subject" or "body" sections defined
 * If the body is of type "multipart/alternative", the "text/plain" version will be preferred over the "text/html" version
-* Currently the program can only deliver files locally.  Eventually the program will be enhanced to deliver to other locations (S3 buckets, FTP Servers, etc.)
+* Currently the program can only deliver files locally and to an S3 bucket.  Eventually the program will be enhanced to deliver to other locations (FTP Servers, Sharepoint, etc.)
 
 ## Account-Specific Conditions
 

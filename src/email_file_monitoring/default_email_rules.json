@@ -8,13 +8,19 @@
         "body": ["Pattern01", "Pattern02"],
         "attachments": [
           {
-            "filename": ["filenamepattern", ".csv"]
+            "filename": [".csv"]
           }
         ]
       },
       "delivery": {
         "target": "local",
         "path": "/path/to/save/files"
+      },
+      "delivery": {
+        "target": "s3", 
+        "region": "us-west-1",
+        "bucket": "my-bucket-name", 
+        "subfolder": "sub-folder1/sub-folder2/"
       }
     },
     {
@@ -29,8 +35,8 @@
         ]
       },
       "delivery": {
-        "target": "local",
-        "path": "C:/Users/Phobia/Desktop"
+        "target": "s3",
+        "path": "nexus-delivered-email-files/vudu-files/"
       }
     },
     {

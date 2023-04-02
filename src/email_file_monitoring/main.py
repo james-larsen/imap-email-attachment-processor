@@ -1,3 +1,4 @@
+"""Check multiple IMAP servers for new emails, evaluate them against pre-defined patterns, and deliver any attachments accordingly"""
 #%%
 import os
 import imaplib
@@ -5,11 +6,40 @@ import email
 import json
 import fnmatch
 from pathlib import Path
+import boto3
+from botocore.exceptions import ClientError
 import keyring
 import configparser
 # pylint: disable=import-error
 from utils.password import get_password as pw
 # pylint: enable=import-error
+
+def transmit_files(target, delivery_details, attachment_name):
+    """Transmit files to an target location"""
+    attachment_content = part.get_payload(decode=True)
+    
+    if target == 'local':
+        delivery_path = delivery_details['path']
+        if not os.path.exists(delivery_path):
+            os.makedirs(delivery_path)
+        filepath = Path(delivery_path) / attachment_name
+        with open(filepath, 'wb') as f:
+            f.write(attachment_content)
+
+    if target == 's3':
+        bucket_region = delivery_details['region']
+        bucket_name = delivery_details['bucket']
+        if 'subfolder' in delivery_details:
+            subfolder_name = delivery_details['subfolder']
+            attachment_name = subfolder_name + attachment_name
+        s3_access_key = keyring.get_password("NexusFilesProcessing", "S3AccessKey")
+        s3_secret_key = keyring.get_password("NexusFilesProcessing", "S3SecretKey")
+
+        # Create an S3 client using the access key and secret key
+        s3 = boto3.client('s3', aws_access_key_id=s3_access_key, aws_secret_access_key=s3_secret_key, region_name=bucket_region)
+
+        s3.put_object(Body=attachment_content, Bucket=bucket_name, Key=attachment_name)
+
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(current_dir)
@@ -123,14 +153,19 @@ for account in imap_accounts['imap_accounts']:
 
                 if 'delivery' in condition:
                     delivery_target = condition['delivery']['target']
-                    delivery_path = condition['delivery']['path']
+                    # delivery_path = condition['delivery']['path']
                 else:
                     target = None
-                    path = None
+                    # path = None
 
                 pattern = condition['pattern']
 
                 meets_criteria = True
+                    
+                # ensure the proper definitions are present
+                if not 'attachments' in pattern or not ('sender' in pattern or 'subject' in pattern or 'body' in pattern):
+                    meets_criteria = False
+                    continue
 
                 # check sender pattern
                 if 'sender' in pattern and pattern['sender'].lower() not in email_from:
@@ -152,24 +187,20 @@ for account in imap_accounts['imap_accounts']:
                     if not body_matches:
                         meets_criteria = False
                         continue
-                    
+                
                 # check attachment pattern
                 if meets_criteria and 'attachments' in pattern:
                     any_attachment_matched = False
                     for i, attachment in enumerate(attachments):
                         attachment_matches = [pattern.lower() for pattern in pattern['attachments'][0]['filename']]
-                        if attachment.lower() in attachment_matches:
+                        if all(pattern in attachment.lower() for pattern in attachment_matches):
                             print(f'Attachment {i+1} meets the condition: {condition_name}')
-                            if not os.path.exists(delivery_path):
-                                os.makedirs(delivery_path)
-                            filepath = Path(delivery_path) / attachment
-                            with open(filepath, 'wb') as f:
-                                f.write(part.get_payload(decode=True))
+                            if delivery_target:
+                                transmit_files(delivery_target, condition['delivery'], attachment)
                             any_attachment_matched = True
                     if not any_attachment_matched:
                         meets_criteria = False
                         continue
-
 
                     # mark email as read
                     # imap_conn.store(email_id, '+FLAGS', '\\Flagged')
