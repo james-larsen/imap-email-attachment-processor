@@ -4,17 +4,17 @@ import os
 import imaplib
 import email
 import json
-import fnmatch
+# import fnmatch
 from pathlib import Path
 import boto3
 from botocore.exceptions import ClientError
-import keyring
+# import keyring
 import configparser
 # pylint: disable=import-error
 from utils.password import get_password as pw
 # pylint: enable=import-error
 
-def transmit_files(target, delivery_details, attachment_name):
+def transmit_files(condition_name, target, delivery_details, attachment_name):
     """Transmit files to an target location"""
     attachment_content = part.get_payload(decode=True)
     
@@ -32,8 +32,8 @@ def transmit_files(target, delivery_details, attachment_name):
         if 'subfolder' in delivery_details:
             subfolder_name = delivery_details['subfolder']
             attachment_name = subfolder_name + attachment_name
-        s3_access_key = keyring.get_password("NexusFilesProcessing", "S3AccessKey")
-        s3_secret_key = keyring.get_password("NexusFilesProcessing", "S3SecretKey")
+        s3_access_key = pw(condition_name, "S3AccessKey")
+        s3_secret_key = pw(condition_name, "S3SecretKey")
 
         # Create an S3 client using the access key and secret key
         s3 = boto3.client('s3', aws_access_key_id=s3_access_key, aws_secret_access_key=s3_secret_key, region_name=bucket_region)
@@ -85,9 +85,9 @@ for account in imap_accounts['imap_accounts']:
         with open("default_email_rules.json") as f:
             config_data = json.load(f)
 
-    with imaplib.IMAP4_SSL(imap_server.lower(), imap_port) as imap_conn:
+    with imaplib.IMAP4_SSL(imap_server, imap_port) as imap_conn:
         # log in to your Gmail account
-        imap_conn.login(imap_username.lower(), imap_password.lower())
+        imap_conn.login(imap_username, imap_password)
 
         # select the mailbox you want to check
         mailbox = 'INBOX'
@@ -196,7 +196,7 @@ for account in imap_accounts['imap_accounts']:
                         if all(pattern in attachment.lower() for pattern in attachment_matches):
                             print(f'Attachment {i+1} meets the condition: {condition_name}')
                             if delivery_target:
-                                transmit_files(delivery_target, condition['delivery'], attachment)
+                                transmit_files(condition_name, delivery_target, condition['delivery'], attachment)
                             any_attachment_matched = True
                     if not any_attachment_matched:
                         meets_criteria = False

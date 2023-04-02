@@ -36,7 +36,14 @@ The module for retrieving database passwords is located at **'./src/email_file_m
 
 If you require more significant changes to how the password is retrieved (Eg. need to pass a different number of parameters), it is called by the **'./src/email_file_monitoring/main.py'** module.
 
-If you do wish to use the keyring library, create password entries using the "account_name" and "imap_password_key" values discussed below.
+If you do wish to use the keyring library, create the below password entries ("account_name" is specified in the **imap_accounts.json** file below, "name" is specified under a given condition in the **_email_rules.json** files below):
+
+* For each IMAP account:
+    * account_name, imap_password_key
+
+* For each S3 delivery target:
+    * name, "S3AccessKey"
+    * name, "S3SecretKey"
 
 ## App Configuration
 
