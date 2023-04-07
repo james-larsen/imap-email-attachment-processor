@@ -4,7 +4,13 @@ The purpose of this application is to allow people to set up a number of IMAP em
 
 ## Requirements
 
-TBD
+python = "^3.8"
+
+boto3 = "^1.26.45"
+
+configparser = "^5.3.0"
+
+keyring = "^23.13.1" # Optional
 
 ## Installation
 
@@ -16,7 +22,9 @@ poetry install
 
 ### Via pip:
 ```python
-TBD
+pip3 install boto3
+pip3 install configparser
+pip3 install keyring # Optional
 ```
 
 ## Usage
@@ -36,7 +44,14 @@ The module for retrieving database passwords is located at **'./src/email_file_m
 
 If you require more significant changes to how the password is retrieved (Eg. need to pass a different number of parameters), it is called by the **'./src/email_file_monitoring/main.py'** module.
 
-If you do wish to use the keyring library, create password entries using the "account_name" and "imap_password_key" values discussed below.
+If you do wish to use the keyring library, create the below password entries ("account_name" is specified in the **imap_accounts.json** file below, "name" is specified under a given condition in the **_email_rules.json** files below):
+
+* For each IMAP account:
+    * account_name, imap_password_key
+
+* For each S3 delivery target:
+    * name, "S3AccessKey"
+    * name, "S3SecretKey"
 
 ## App Configuration
 
@@ -127,9 +142,9 @@ By default all accounts will use the **default_email_rules.json** file to determ
 
 For example, if you have an account_name in your "imap_accounts.json" with a value of "Acme_Sales_Files", then it will look for "**Acme_Sales_Files_email_rules.json**" and use it instead of the default.
 
-## Logging
+[## Logging]:#
 
-TBD
+[TBD]:#
 
 ## About the Author
 
